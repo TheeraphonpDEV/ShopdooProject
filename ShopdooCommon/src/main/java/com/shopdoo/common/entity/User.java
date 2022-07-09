@@ -1,5 +1,6 @@
 package com.shopdoo.common.entity;
 
+import java.beans.Transient;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -134,6 +135,13 @@ public class User {
 	public String toString() {
 		return "User [id=" + id + ", email=" + email + ", password=" + password + ", firstName=" + firstName
 				+ ", lastName=" + lastName + ", roles=" + roles + "]";
+	}
+	
+	@Transient
+	public String getPhotosImagePath( ) {
+			if (id == null || photos == null) return "/images/default-image.png";
+			
+			return "/user-photos/" + this.id + "/" + this.photos;
 	}
 	
 	
