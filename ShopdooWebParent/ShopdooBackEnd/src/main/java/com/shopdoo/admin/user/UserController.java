@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -32,6 +33,20 @@ public class UserController {
 		return "users";
 	}
 	
+	@GetMapping("/users/page/{pageNum}")
+	public String listByPage(@PathVariable(name = "pageNum") int pageNum, Model model) {
+			Page<User> page = service.ListByPage(pageNum);
+			List<User> listUsers = page.getContent();
+			
+			System.out.println("pageNum = " + pageNum);
+			System.out.println("Total elements = " + page.getTotalElements());
+			System.out.println("Total pages = " + page.getTotalPages());
+			
+			
+			model.addAttribute("listUsers", listUsers);
+			return "users";
+	}
+	
 	@GetMapping("/users/new")
 	public String newUser(Model model ) {
 		List<Role> listRoles = service.listRoles();
@@ -47,15 +62,16 @@ public class UserController {
 	}
 	
 	@PostMapping("/users/save")
-	public String saveUser(User user, RedirectAttributes redirectAttributes, 
-			@RequestParam("image") MultipartFile multipartFile) throws IOException {
+	public String saveUser(User user, RedirectAttributes redirectAttributes, @RequestParam("image") MultipartFile multipartFile) throws IOException {
 		
 		if  (!multipartFile.isEmpty()) {
 			String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
 			user.setPhotos(fileName);
 			User savedUser = service.save(user);
+			
 			String uploadDir = "user-photos/" + savedUser.getId();
-		
+			
+			FileUploadUtil.cleanDir(uploadDir);
 			FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
 			
 		}
