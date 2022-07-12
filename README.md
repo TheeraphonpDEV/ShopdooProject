@@ -1,3 +1,3 @@
-Full Stack Spring Boot eCommerce 
+Full Stack Spring Boot eCommerce + MVC + Monolith
  
- Spring Boot + MVC + Monolith
+
