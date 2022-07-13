@@ -19,6 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.shopdoo.admin.FileUploadUtil;
+import com.shopdoo.admin.user.export.UserCsvExporter;
+import com.shopdoo.admin.user.export.UserExcelExporter;
+import com.shopdoo.admin.user.export.UserPdfExporter;
 import com.shopdoo.common.entity.Role;
 import com.shopdoo.common.entity.User;
 
@@ -83,7 +86,8 @@ public class UserController {
 	}
 	
 	@PostMapping("/users/save")
-	public String saveUser(User user, RedirectAttributes redirectAttributes, @RequestParam("image") MultipartFile multipartFile) throws IOException {
+	public String saveUser(User user, RedirectAttributes redirectAttributes,
+			@RequestParam("image") MultipartFile multipartFile) throws IOException {
 		
 		if  (!multipartFile.isEmpty()) {
 			String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
@@ -95,13 +99,16 @@ public class UserController {
 			FileUploadUtil.cleanDir(uploadDir);
 			FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
 			
+		} else {
+			if (user.getPhotos().isEmpty()) user.setPhotos(null);
+			service.save(user);
 		}
-			//service.save(user);
 		
 		redirectAttributes.addFlashAttribute("message", "The user has been saved successfully. ^^");
 		
 		return getRedirectURLtoAffectedUser(user);
 	}
+	
 
 	private String getRedirectURLtoAffectedUser(User user) {
 		String firstPartOfEmail = user.getEmail().split("@")[0];
