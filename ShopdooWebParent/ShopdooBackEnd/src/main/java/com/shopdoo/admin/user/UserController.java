@@ -3,6 +3,8 @@ package com.shopdoo.admin.user;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
@@ -97,8 +99,13 @@ public class UserController {
 			//service.save(user);
 		
 		redirectAttributes.addFlashAttribute("message", "The user has been saved successfully. ^^");
-			
-		return "redirect:/users";
+		
+		return getRedirectURLtoAffectedUser(user);
+	}
+
+	private String getRedirectURLtoAffectedUser(User user) {
+		String firstPartOfEmail = user.getEmail().split("@")[0];
+		return "redirect:/users/page/1?sortField=id&sortDir=asc&keyword=" + firstPartOfEmail;
 	}
 	
 	@GetMapping("/users/edit/{id}")
@@ -138,11 +145,37 @@ public class UserController {
 	public String updateUserEnabledStatus(@PathVariable("id") Integer id, @PathVariable("status") boolean enabled, RedirectAttributes redirectAttributes) {
 			service.updateUserEnabledStatus(id, enabled);
 			String status = enabled ? "enable" : "disabled";
-			String message = "The user ID "+ id + "has been " + status;
+			String message = "The user ID "+ id + " has been " + status;
 			redirectAttributes.addFlashAttribute("message", message);
 			
 			return "redirect:/users";
 	}
 
+	@GetMapping("/users/export/csv")
+	public void exportToCSV(HttpServletResponse response) throws IOException {
+			List<User> listUsers = service.listAll();
+			UserCsvExporter exporter = new UserCsvExporter();
+			exporter.export(listUsers, response);
+	}
 	
+	@GetMapping("/users/export/excel")
+	public void exportToExcel(HttpServletResponse response) throws IOException {
+			List<User> listUsers = service.listAll();
+	
+			UserExcelExporter exporter = new UserExcelExporter();
+			exporter.export(listUsers, response);
+			
+	}
+	
+	@GetMapping("/users/export/pdf")
+	public void exportToPDF(HttpServletResponse response) throws IOException {
+			List<User> listUsers = service.listAll();
+	
+			UserPdfExporter exporter = new UserPdfExporter();
+			exporter.export(listUsers, response);
+			
+	}
+			
+			
+			
 }
