@@ -23,7 +23,7 @@ import com.shopdoo.common.entity.User;
 		@Autowired
 		private UserService service;
 
-		@GetMapping("/account_form")
+		@GetMapping("/account")
 		public String viewDetails(@AuthenticationPrincipal ShopdooUserDetails loggedUser,
 				Model model) {
 			
